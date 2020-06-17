@@ -77,23 +77,13 @@ function renderYCircles(YcirclesGroup, newYScale, chosenYAxis) {
     return YcirclesGroup;
   }
 
-function renderXLabels(XstateLabelsGroup, newXScale, chosenXAxis) {
-    XstateLabelsGroup.transition()
-                     .duration(1000)
-                     .attr("x", function(d) {console.log(newXScale(d[chosenXAxis])); return newXScale(d[chosenXAxis])})
-    
-    
-    console.log(chosenXAxis);
-    return XstateLabelsGroup;
+function renderText(textGroup, newXScale, chosenXAxis, newYScale, chosenYAxis) {
+  textGroup.transition()
+           .duration(1000)
+           .attr("x", d => newXScale(d[chosenXAxis]))
+           .attr("y", d => newYScale(d[chosenYAxis]));
+    return textGroup;
 }
-
-function renderYLabels(YstateLabelsGroup, newYScale, chosenYAxis) {
-    YstateLabelsGroup.transition()
-                     .duration(1000)
-                     .attr("y", function(d) {console.log(yLinearScale(d[chosenYAxis])); return yLinearScale(d[chosenYAxis])})
-  
-    return YstateLabelsGroup;
-} 
 
 d3.csv("assets/data/data.csv").then(function(stateData, err) {
     //console.log(data);
@@ -142,7 +132,7 @@ d3.csv("assets/data/data.csv").then(function(stateData, err) {
                                   .attr("fill", "#8FBC8F")
                                   .attr("opacity", ".8");
     
-    var XstateLabelsGroup = chartGroup.selectAll("stateText")
+    var textGroup = chartGroup.selectAll("stateText")
                                       .data(stateData)
                                       .enter()
                                       .append("text")
@@ -153,17 +143,7 @@ d3.csv("assets/data/data.csv").then(function(stateData, err) {
                                       .attr("font-size", "8.5px")
                                       .attr("text-anchor", "middle")
                                       .text(d=> `${d.abbr}`);  
-    
-    var YstateLabelsGroup = chartGroup.selectAll("stateText")
-                                      .data(stateData)
-                                      .attr("x", d => xLinearScale(d[chosenXAxis]))
-                                      .attr("y", d => yLinearScale(d[chosenYAxis]))
-                                      .attr("fill", "black")
-                                      .attr("stroke-width", "1px")
-                                      .attr("font-size", "8.5px")
-                                      .attr("text-anchor", "middle")
-                                      .text(d=> `${d.abbr}`);  
-                         
+                          
     var xlabelsGroup = chartGroup.append("g")
                                  .attr("transform", `translate(${width / 2}, ${height + 20})`);
     
@@ -234,7 +214,7 @@ d3.csv("assets/data/data.csv").then(function(stateData, err) {
         // updates circles with new x values
         XcirclesGroup = renderXCircles(XcirclesGroup, xLinearScale, chosenXAxis);
         
-        XstateLabelsGroup = renderXLabels(XstateLabelsGroup, xLinearScale, chosenXAxis);
+        textGroup = renderText(textGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
         // updates tooltips with new info
         //XcirclesGroup = updateToolTip(chosenXAxis, XcirclesGroup);
 
@@ -287,7 +267,7 @@ d3.csv("assets/data/data.csv").then(function(stateData, err) {
 
         YcirclesGroup = renderYCircles(YcirclesGroup, yLinearScale, chosenYAxis);
         
-        YstateLabelsGroup = renderYLabels(YstateLabelsGroup, yLinearScale, chosenYAxis);
+        textGroup = renderText(textGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
         //YcirclesGroup = updateToolTip(chosenYAxis, YcirclesGroup);
 
         if (chosenYAxis === "healthcare") {
